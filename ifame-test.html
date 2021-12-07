@@ -1,0 +1,9 @@
+Data from iframe
+<div id="data"></div>
+<iframe src="https://serg.one/mapbox_usa_zipcodes/8.html" width="800" height="600"></iframe>
+<script>
+    window.addEventListener("message", m => {
+        console.log('m', m);
+        document.getElementById("data").innerHTML = m.data.value
+    }, false);
+</script>
