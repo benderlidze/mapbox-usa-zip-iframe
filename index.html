@@ -2,529 +2,158 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>Map</title>
+    <meta charset="utf-8">
+    <title>Display a web map using an alternate projection</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script>
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css' rel='stylesheet' />
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
-    crossorigin="anonymous">
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
-    crossorigin="anonymous"></script>
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js'></script>
-  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css'
-    type='text/css' />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+        }
 
-
-  <style type="text/css">
-    html,
-    body {
-      height: 100%;
-      background-color: white
-    }
-
-    .button {
-      background-color: #4CAF50;
-      /* Green */
-      border: none;
-      color: white;
-      padding: 16px 16px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 4px 2px;
-      -webkit-transition-duration: 0.4s;
-      /* Safari */
-      transition-duration: 0.4s;
-      cursor: pointer;
-
-      position: absolute;
-      z-index: 100;
-
-    }
-
-    .buttonCircle {
-      top: 20px;
-      left: 20px;
-      background-color: white;
-      color: black;
-      border: 2px solid #f44336;
-    }
-
-    .buttonCircle:hover {
-      background-color: #f44336;
-      color: white;
-    }
-
-
-    #panInfo {
-      height: 100%;
-      background: #eeeeee;
-      overflow-y: auto
-    }
-
-    #map {
-      width: 100%;
-      height: 100%
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    .circleYear {
-      cursor: pointer;
-    }
-
-    .smallTitle {
-      color: rgb(155, 155, 155);
-      font-size: 12px;
-    }
-
-    .h-70 {
-      height: 70% !important;
-    }
-
-    .h-30 {
-      height: 30% !important;
-    }
-
-    #ck-button {
-      margin: 4px;
-      background-color: #EFEFEF;
-      border-radius: 4px;
-      border: 1px solid #D0D0D0;
-      overflow: auto;
-      width: 153px;
-    }
-
-    #ck-button label {
-      float: left;
-      width: 150px;
-      margin: 0px;
-      padding: 0px;
-    }
-
-    #ck-button label span {
-      text-align: center;
-      padding: 3px 0px;
-      display: block;
-      border-radius: 4px;
-    }
-
-    #ck-button label input {
-      position: absolute;
-      top: -20px;
-    }
-
-    #ck-button input:hover+span {
-      background-color: rgb(208, 230, 255);
-    }
-
-    #ck-button input:checked+span {
-      background-color: rgb(140, 186, 255);
-      color: #fff;
-    }
-
-    #ck-button input:checked:hover+span {
-      background-color: rgb(140, 186, 255);
-      color: #fff;
-    }
-
-    #coordinatesInfo {
-      position: absolute;
-      top: -1000px;
-      left: -1000px;
-      background: #D0D0D0;
-      border: 1px solid red;
-      border-radius: 5px;
-      width: 50px;
-      height: 30px;
-      z-index: 100;
-      text-align: center;
-      padding: 3px;
-    }
-  </style>
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
 
-  <button class="button buttonCircle" id="circleSelectionButton">Circle</button>
-  <div id="coordinatesInfo"></div>
+    <div id='map'></div>
 
-  <div class="container-fluid h-100">
-    <div class="row justify-content-center h-100">
-      <div class="col-12">
-        <div class="row h-100">
-          <div class="col-9">
-            <div id='map'></div>
-          </div>
-          <div class="col-3">
-            <div id='clusters' style="max-height:100%; overflow-y:scroll">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
+    <script>
 
-
-  <script>
-    var coordinatesInfo = document.querySelector("#coordinatesInfo");
-    var lineDistance = turf.length;
-    var LotsOfPointsMode = MapboxDraw.modes.draw_line_string;
-    var circleSelectionMode = false;
-    var mainCSVZipData = [];
-    var circleSelectionButton = document.querySelector("#circleSelectionButton");
-    circleSelectionButton.addEventListener("click", function (e) {
-      draw.changeMode('circle_mode');
-    })
-
-    d3.csv("ZIP-COUNTY-FIPS_2018-03.csv", function (d) {
-      //console.log('', d);
-      mainCSVZipData = d;
-    });
-
-    LotsOfPointsMode.clickAnywhere = function (state, e) {
-      // this ends the drawing after the user creates a second point, triggering this.onStop
-      // console.log('', state);
-      circleSelectionMode = true;
-
-      if (state.currentVertexPosition === 1) {
-        state.line.addCoordinate(0, e.lngLat.lng, e.lngLat.lat);
-        return this.changeMode('simple_select', {
-          featureIds: [state.line.id]
-        });
-      }
-      this.updateUIClasses({
-        mouse: 'add'
-      });
-      state.line.updateCoordinate(state.currentVertexPosition, e.lngLat.lng, e.lngLat.lat);
-      if (state.direction === 'forward') {
-        state.currentVertexPosition += 1; // eslint-disable-line
-        state.line.updateCoordinate(state.currentVertexPosition, e.lngLat.lng, e.lngLat.lat);
-      } else {
-        state.line.addCoordinate(0, e.lngLat.lng, e.lngLat.lat);
-      }
-      return null;
-    };
-
-    LotsOfPointsMode.onStop = function (state) {
-      // check to see if we've deleted this feature
-      if (this.getFeature(state.line.id) === undefined) return;
-      //remove last added coordinate
-      state.line.removeCoordinate(`${state.currentVertexPosition}`);
-      //console.log('STATE', state);
-
-      var circleGeoJson = {
-        "type": "FeatureCollection",
-        "features": [state.circle]
-      };
-
-      updateInfoDiv({
-        x: -1000,
-        y: -1000
-      }, 0); // remove radius div
-      radiusSelection(circleGeoJson)
-
-      setTimeout(() => { //prevent polygon selection on final click 
-        circleSelectionMode = false;
-      }, 200);
-
-    };
-
-    LotsOfPointsMode.toDisplayFeatures = function (state, geojson, display) {
-      display(geojson);
-      // console.log('', geojson);
-
-      const isActiveLine = geojson.properties.id === state.line.id;
-      geojson.properties.active = (isActiveLine) ? 'true' : 'false';
-      if (!isActiveLine) return display(geojson);
-
-      // Only render the line if it has at least one real coordinate
-      if (geojson.geometry.coordinates.length < 2) return null;
-      geojson.properties.meta = 'feature';
-
-      const center = geojson.geometry.coordinates[0];
-      const radiusInKm = lineDistance(geojson, {
-        units: 'kilometers'
-      });
-      const circleFeature = createGeoJSONCircle(center, radiusInKm, state.line.id);
-      circleFeature.properties.meta = 'radius';
-      circleFeature.id = state.line.id
-      display(circleFeature);
-      state.circle = circleFeature;
-
-      updateInfoDiv(map.project(center), radiusInKm);
-    };
-
-    function radiusSelection(geoJson) {
-
-      var circle = geoJson.features["0"];
-
-      var features = map.queryRenderedFeatures({
-        layers: ['boundary']
-      });
-
-      var countySelection = {};
-
-      features.forEach(function (item) {
-        var bool = false;
-        if (item.geometry.type === "MultiPolygon") {
-          //split it to polygons
-          var allBool = [];
-          item.geometry.coordinates.forEach(function (coords) {
-            var polygon = turf.polygon(coords);
-            allBool.push(turf.booleanContains(circle, polygon))
-          });
-          bool = allBool.every(function (item) {
-            return item === true
-          });
-          //console.log("!!!!!!!!!!", bool, "|", allBool, item.properties.GEOID10, item, )
-
-        } else {
-          bool = turf.booleanContains(circle, item);
-        }
-        if (bool) {
-          countySelection[item.properties.geoid10] = true;
-        }
-      })
-      //console.log('', countySelection);
-      selectById(countySelection)
-    }
-
-
-    function updateInfoDiv(center, radiusInKm) {
-
-      //console.log('', xy, radiusInKm);
-      coordinatesInfo.style.top = center.y + "px";
-      coordinatesInfo.style.left = center.x + "px";
-      coordinatesInfo.innerHTML = Math.ceil(radiusInKm / 1.609344) + "m";
-    }
-
-    function createGeoJSONCircle(center, radiusInKm, parentId, points = 64) {
-
-      const coords = {
-        latitude: center[1],
-        longitude: center[0],
-      };
-
-      const km = radiusInKm;
-
-      const ret = [];
-      const distanceX = km / (111.320 * Math.cos((coords.latitude * Math.PI) / 180));
-      const distanceY = km / 110.574;
-
-      let theta;
-      let x;
-      let y;
-      for (let i = 0; i < points; i += 1) {
-        theta = (i / points) * (2 * Math.PI);
-        x = distanceX * Math.cos(theta);
-        y = distanceY * Math.sin(theta);
-
-        ret.push([coords.longitude + x, coords.latitude + y]);
-      }
-      ret.push(ret[0]);
-
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'Polygon',
-          coordinates: [ret],
-        },
-        properties: {
-          parent: parentId,
-          active: 'true'
-        },
-      };
-    }
-
-
-    // ==============================
-    var currentCode;
-    var text = document.getElementById("info")
-    var mainData = [];
-    var info = document.querySelector("#clusters")
-    var countySelection = {};
-
-    mapboxgl.accessToken =
-      'pk.eyJ1IjoiYmVuZGVybGlkemUiLCJhIjoiY2pud3c0MnN1MDdraTN4cXBraDR3MHdyaCJ9.OsQLWGIWOutuIXCHgT8coQ';
-    var map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/light-v9',
-      center: {
-        lng: -122.38082958050319,
-        lat: 37.73721382980925
-      },
-      zoom: 9.29
-    });
-
-    var draw = new MapboxDraw({
-      displayControlsDefault: false,
-      //defaultMode: 'lots_of_points',
-      // Adds the LotsOfPointsMode to the built-in set of modes
-      modes: Object.assign({
-        circle_mode: LotsOfPointsMode
-      }, MapboxDraw.modes),
-
-      controls: {
-        circle_mode: true,
-        line_string: false,
-        polygon: false,
-        trash: false
-      }
-    });
-    map.addControl(draw);
-
-
-    map.on('load', function () {
-
-      map.addSource('mapbox-usa-county', {
-        "type": "vector",
-        "url": "mapbox://benderlidze.5058dvhd"
-      });
-
-      map.addLayer({
-        "id": "county",
-        "type": "fill",
-        "source": "mapbox-usa-county",
-        "source-layer": "cb_2017_us_county_500k_1-1ws9t2",
-        "paint": {
-          "fill-color": 'white',
-          "fill-opacity": 0.1,
-          'fill-outline-color': "red",
-        },
-      });
-      map.addLayer({
-        "id": "countyBorder",
-        "type": "line",
-        "source": "mapbox-usa-county",
-        "source-layer": "cb_2017_us_county_500k_1-1ws9t2",
-        'paint': {
-          'line-width': 2,
-          'line-color': 'red'
-        }
-      });
-
-      map.addSource('mapbox-usa-postcodes', {
-        "type": "vector",
-        "url": "mapbox://benderlidze.1wgsskh2"
-      });
-
-      map.addLayer({
-        "id": "boundary",
-        "type": "fill",
-        "source": "mapbox-usa-postcodes",
-        "source-layer": "cb_2017_us_zcta510_500k_2-78dqa5",
-        "paint": {
-          "fill-color": 'black',
-          "fill-opacity": 0.5,
-          'fill-outline-color': "black",
-        },
-      });
-
-
-      map.on('click', "boundary", function (e) {
-
-        
-        var features = map.queryRenderedFeatures(e.point, {
-          layers: ['boundary']
+        mapboxgl.accessToken = 'pk.eyJ1IjoidHJ1c3RzY291dCIsImEiOiJja3d3ODZvdnMwMTR4MnZydW01c3RsbG92In0.qlNQ_ZeZAEeRC4-reSbroA';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            zoom: 13,
+            center: [-122.447303, 37.753574]
         });
 
-        if (circleSelectionMode) return;
-        var code = features[0].properties.geoid10
-        console.log('',code);
-        
-        
-        if (e.originalEvent.altKey) {
-          //add to selection
-          countySelection[code] = true;
-        } else {
-          //clear selection object
-          countySelection = {}
-          countySelection[code] = true;
-        }
-        selectById(countySelection)
-        
-        
-      })
 
-      var currentGEOID = 0;
+        map.on('load', function () {
 
-      map.on('mousemove', 'county', function (e) {
-        // Change the cursor style as a UI indicator.
-        map.getCanvas().style.cursor = 'pointer';
-        var features = map.queryRenderedFeatures(e.point, {
-          layers: ['county']
+            map.addSource('mapbox-usa-county', {
+                "type": "vector",
+                "url": "mapbox://trustscout.9shrei3u"
+            });
+
+            map.addLayer({
+                "id": "county",
+                "type": "fill",
+                "source": "mapbox-usa-county",
+                "source-layer": "tl_2021_us_zcta520_1-5hu4o2",
+                "paint": {
+                    "fill-color": 'white',
+                    "fill-opacity": 0.1,
+                    'fill-outline-color': "red",
+                },
+            });
+            map.addLayer({
+                "id": "countyBorder",
+                "type": "line",
+                "source": "mapbox-usa-county",
+                "source-layer": "tl_2021_us_zcta520_1-5hu4o2",
+                'paint': {
+                    'line-width': 1,
+                    'line-color': 'red'
+                }
+            });
+
+            map.addSource('mapbox-usa-postcodes', {
+                "type": "vector",
+                "url": "mapbox://trustscout.9shrei3u"
+            });
+
+            map.addLayer({
+                "id": "boundary",
+                "type": "fill",
+                "source": "mapbox-usa-postcodes",
+                "source-layer": "tl_2021_us_zcta520_1-5hu4o2",
+                "paint": {
+                    "fill-color": 'black',
+                    "fill-opacity": 0.2,
+                    'fill-outline-color': "black",
+                },
+            });
+
+
+            map.on('click', "boundary", function (e) {
+
+                var features = map.queryRenderedFeatures(e.point, {
+                    layers: ['boundary']
+                });
+                var code = features[0].properties.ZCTA5CE20
+                console.log('', code);
+                console.log('', features[0].properties);
+
+                map.setPaintProperty('boundary', "fill-color", ['case',
+                    ['any',
+                        ['any', ['==', ['get', 'GEOID20'], code]]
+                    ], "green",
+                    'black'
+                ])
+
+                window.parent.postMessage({ message: "zipCode", value: code  }, "*");
+            })
+
+            var currentGEOID = 0;
+
+            map.on('mousemove', 'boundary', function (e) {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'boundary', function () {
+                map.getCanvas().style.cursor = '';
+            });
+
         });
-        var GEOID = features["0"].properties.GEOID;
-        //console.log('', currentGEOID, GEOID);
-        if (currentGEOID !== GEOID) {
-          var zipList = mainCSVZipData.filter(function (item) {
-            return item.STCOUNTYFP === GEOID;
-          })
-          //console.log('', zipList);
 
-          var text =zipList.map(function (item) {
-            return "<b>ZIP: </b>"+ item.CITY + ":" + item.ZIP + " "
-          }).join("<br>")
-          info.innerHTML = text
+        function selectById(countySelection) {
+            var filter = ['any'];
+            Object.keys(countySelection).map(function (code) {
+                //console.log('', code);
+                filter.push(['==', ['get', 'geoid10'], code])
+            })
+            map.setPaintProperty('boundary', "fill-color", ['case',
+                ['any',
+                    filter
+                ], "green",
+                'black'
+            ])
+            var json = {};
+            var codes = Object.keys(countySelection);
+            var features = map.queryRenderedFeatures({
+                layers: ['boundary']
+            });
+            features.forEach(function (item) {
+                if (codes.includes(item.properties.geoid10)) {
+                    json[item.properties.geoid10] = item.geometry;
+                }
+            })
+
+
+            // console.log('', json);
+            var text = Object.keys(json).map(function (item) {
+                return "<b>ZIP: </b>" + item + " "
+            }).join("<br>")
+            info.innerHTML = text
+
+
+            const zip = Object.keys(json).map(i => i).join("")
+            window.parent.postMessage({ message: "zipCode", value: zip }, "*");
         }
-        currentGEOID = GEOID
-      });
-
-      map.on('mouseleave', 'county', function () {
-        map.getCanvas().style.cursor = '';
-      });
-
-    });
-
-
-
-    function selectById(countySelection) {
-      var filter = ['any'];
-      Object.keys(countySelection).map(function (code) {
-        //console.log('', code);
-        filter.push(['==', ['get', 'geoid10'], code])
-      })
-      map.setPaintProperty('boundary', "fill-color", ['case',
-        ['any',
-          filter
-        ], "green",
-        'black'
-      ])
-      var json = {};
-      var codes = Object.keys(countySelection);
-      var features = map.queryRenderedFeatures({
-        layers: ['boundary']
-      });
-      features.forEach(function (item) {
-        if (codes.includes(item.properties.geoid10)) {
-          json[item.properties.geoid10] = item.geometry;
-        }
-      })
-      
-      
-      // console.log('', json);
-      var text = Object.keys(json).map(function (item) {
-        return "<b>ZIP: </b>" + item + " "
-      }).join("<br>")
-      info.innerHTML = text
-      
-      
-      const zip = Object.keys(json).map(i=>i).join("")
-      window.parent.postMessage({ message: "zipCode", value: zip  }, "*");
-    }
-  </script>
+    </script>
 
 </body>
+
 </html>
