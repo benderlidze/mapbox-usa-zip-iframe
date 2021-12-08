@@ -136,26 +136,28 @@
                 'type': 'symbol',
                 'source': 'centers',
                 'paint': {
-                    'text-color': "#285AA1"
+                    'text-color': "#285AA1",
+                    "text-halo-color": "white",
+                    "text-halo-width": 2,
+                    "text-halo-blur": 1
                 },
                 'layout': {
                     'text-field': ['get', 'zip'],
                     'text-variable-anchor': ['bottom'],
                     'text-radial-offset': 1,
                     'text-justify': 'auto',
-
                 },
                 "minzoom": 8,
             });
-            map.addLayer({
-                "id": "circles1",
-                "source": "centers",
-                "type": "circle",
-                "paint": {
-                    "circle-radius": 5,
-                    "circle-color": "#007cbf",
-                },
-            });
+            // map.addLayer({
+            //     "id": "circles1",
+            //     "source": "centers",
+            //     "type": "circle",
+            //     "paint": {
+            //         "circle-radius": 5,
+            //         "circle-color": "#007cbf",
+            //     },
+            // });
 
             fetch("zip.json")
                 .then(i => i.json())
