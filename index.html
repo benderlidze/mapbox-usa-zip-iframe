@@ -36,7 +36,7 @@
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
             zoom: 9,
-            center: {lng: -122.4250517166777, lat: 37.7220580327421}
+            center: { lng: -122.4250517166777, lat: 37.7220580327421 }
         });
 
 
@@ -65,7 +65,7 @@
                 "source-layer": "tl_2021_us_zcta520_1-5hu4o2",
                 'paint': {
                     'line-width': 1,
-                    'line-color': 'red'
+                    'line-color': '#A3BCE8'
                 }
             });
 
@@ -81,7 +81,7 @@
                 "source-layer": "tl_2021_us_zcta520_1-5hu4o2",
                 "paint": {
                     "fill-color": 'black',
-                    "fill-opacity": 0.2,
+                    "fill-opacity": 0.01,
                     'fill-outline-color': "black",
                 },
             });
@@ -99,11 +99,13 @@
                 map.setPaintProperty('boundary', "fill-color", ['case',
                     ['any',
                         ['any', ['==', ['get', 'GEOID20'], code]]
-                    ], "green",
+                    ], "#F42D68",
                     'black'
                 ])
+                map.setPaintProperty('boundary',
+                    "fill-opacity", ['case', ['any', ['==', ['get', 'GEOID20'], code]], 0.3, 0.01])
 
-                window.parent.postMessage({ message: "zipCode", value: code  }, "*");
+                window.parent.postMessage({ message: "zipCode", value: code }, "*");
             })
 
             var currentGEOID = 0;
@@ -115,6 +117,56 @@
             map.on('mouseleave', 'boundary', function () {
                 map.getCanvas().style.cursor = '';
             });
+
+
+            map.addSource('centers', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Polygon',
+                        'coordinates': []
+                    }
+                }
+            });
+
+
+            map.addLayer({
+                'id': 'labels',
+                'type': 'symbol',
+                'source': 'centers',
+                'paint': {
+                    'text-color': "#285AA1"
+                },
+                'layout': {
+                    'text-field': ['get', 'zip'],
+                    'text-variable-anchor': ['bottom'],
+                    'text-radial-offset': 1,
+                    'text-justify': 'auto',
+
+                },
+                "minzoom": 8,
+            });
+            map.addLayer({
+                "id": "circles1",
+                "source": "centers",
+                "type": "circle",
+                "paint": {
+                    "circle-radius": 5,
+                    "circle-color": "#007cbf",
+                },
+            });
+
+            fetch("zip.json")
+                .then(i => i.json())
+                .then(i => {
+                    console.log('i', i);
+                    const collection = turf.featureCollection(i)
+                    map.getSource('centers').setData(collection)
+                })
+
+
+
 
         });
 
